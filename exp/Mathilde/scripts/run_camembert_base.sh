@@ -1,18 +1,18 @@
 #!/usr/bin/bash
 
 #SBATCH --job-name=camembert_base_no_sense_comp
-#SBATCH -A czj@v100  # TODO à changer !! 
-#SBATCH -C v100-32g  # TODO à changer !! 
+#SBATCH -A ulj12fo@v100
+#SBATCH -C v100-32g
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=8
 #SBATCH --qos=qos_gpu-t3
 #SBATCH --time=20:00:00
 #SBATCH --output=camembert_base_no_sense_comp
 
-cd /home/getalp/aguiarm/WSD/nwsd  
+cd /gpfswork/rech/oou/ulj12fo/nwsd #/home/getalp/aguiarm/WSD/nwsd  
 
 # ----- VARIABLE TO DEFINE ----- #
-BASE_PATH=/home/getalp/aguiarm/WSD/nwsd  # TODO à changer quand sur Jean Zay 
+BASE_PATH=/gpfswork/rech/oou/ulj12fo/nwsd #/home/getalp/aguiarm/WSD/nwsd  # TODO à changer quand sur Jean Zay 
 SEMCOR_PATH=$BASE_PATH/data/corpora/semcor.fr.xml # path of the SEMCOR data
 WNGT_PATH=$BASE_PATH/data/corpora/wngt.fr.xml # path of the WNGT data
 BERT_PATH=$BASE_PATH/pt_models/camembert-base

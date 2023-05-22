@@ -1,26 +1,26 @@
 #!/usr/bin/bash
 
-#SBATCH --job-name=camembert_base_no_sense_comp
-#SBATCH -A czj@v100  # TODO à changer !! 
-#SBATCH -C v100-32g  # TODO à changer !! 
+#SBATCH --job-name=bio_clinical_bert_no_sense_comp
+#SBATCH -A ulj12fo@v100
+#SBATCH -C v100-32g
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=8
 #SBATCH --qos=qos_gpu-t3
 #SBATCH --time=20:00:00
-#SBATCH --output=camembert_base_no_sense_comp
+#SBATCH --output=bio_clinical_bert_no_sense_comp
 
-cd /home/getalp/aguiarm/WSD/nwsd  
+cd /gpfswork/rech/oou/ulj12fo/nswd #/home/getalp/aguiarm/WSD/nwsd  
 
 # ----- VARIABLE TO DEFINE ----- #
-BASE_PATH=/home/getalp/aguiarm/WSD/nwsd  # TODO à changer quand sur Jean Zay 
+BASE_PATH=/gpfswork/rech/oou/ulj12fo/nwsd #/home/getalp/aguiarm/WSD/nwsd  # TODO à changer quand sur Jean Zay 
 SEMCOR_PATH=$BASE_PATH/data/corpora/semcor.fr.xml # path of the SEMCOR data
 WNGT_PATH=$BASE_PATH/data/corpora/wngt.fr.xml # path of the WNGT data
-BERT_PATH=$BASE_PATH/pt_models/camembert-base
+BERT_PATH=$BASE_PATH/pt_models/Bio_ClinicalBERT
 TEST_DATA=$BASE_PATH/data/corpora/semeval2013task12.fr.xml
 DATA_DIRECTORY=$BASE_PATH/data/PREPROCESSED # to store the prepared data
-TARGET_DIRECTORY=$BASE_PATH/trained_models/camembert_base_no_sense_comp # to store the trained model
+TARGET_DIRECTORY=$BASE_PATH/trained_models/bio_clinical_bert_no_sense_comp # to store the trained model
 TXT_TO_WSD=$BASE_PATH/data/to_disambiguate
-WEIGHTS_PATH=$BASE_PATH/trained_models/camembert_base_no_sense_comp/model_weights_wsd0
+WEIGHTS_PATH=$BASE_PATH/trained_models/bio_clinical_bert_no_sense_comp/model_weights_wsd0
 
 # ----- CHECK IF DIRECTORIES EXIST ----- #
 if [ ! -d "$DATA_DIRECTORY" ]; then
@@ -57,7 +57,7 @@ python src/train.py --data_path $DATA_DIRECTORY \
 --model_path $TARGET_DIRECTORY \
 --batch_size 100 --token_per_batch 2000 --update_frequency 4 \
 --eval_frequency 9999999 --ensemble_count 1 --epoch_count 50 \
---input_auto_model camembert --input_auto_path $BERT_PATH \
+--input_auto_model bert --input_auto_path $BERT_PATH \
 --encoder_type transformer \
 --encoder_transformer_hidden_size 768 \
 --encoder_transformer_layers 12 \
@@ -78,22 +78,22 @@ python src/NeuralWSDEvaluate.py \
 --filter_lemma False \
 --clear_text False
 
-#echo "---------- Evaluation done, starting the disambiguation of pictos ----------"
+echo "---------- Evaluation done, starting the disambiguation of pictos ----------"
 
-#dir_model="$(dirname "$WEIGHTS_PATH")"
-#mkdir "$dir_model/pictos"
-#PICTO_PATH="$dir_model/pictos"
+dir_model="$(dirname "$WEIGHTS_PATH")"
+mkdir "$dir_model/pictos"
+PICTO_PATH="$dir_model/pictos"
 
-#python src/NeuralWSDDecodePictos.py \
-#--data_path $DATA_DIRECTORY \
-#--weights $WEIGHTS_PATH \
-#--lowercase True \
-#--sense_compression_hypernyms False \
-#--filter_lemma False \
-#--clear_text False \
-#--corpus $BASE_PATH/data/corpora/corpus_txt_pictos_ids_wn_300.csv \
-#--saved_path $PICTO_PATH \
-#--mfs_backoff False
+python src/NeuralWSDDecodePictos.py \
+--data_path $DATA_DIRECTORY \
+--weights $WEIGHTS_PATH \
+--lowercase True \
+--sense_compression_hypernyms False \
+--filter_lemma False \
+--clear_text False \
+--corpus $BASE_PATH/data/corpora/corpus_txt_pictos_ids_wn_300.csv \
+--saved_path $PICTO_PATH \
+--mfs_backoff False
 
 # ------ Disambiguate sentences with the Neural Word Sense Disambiguation model ------ #
 # python src/NeuralWSDDecode.py \
